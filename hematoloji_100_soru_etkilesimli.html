@@ -1,0 +1,270 @@
+
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hematoloji - 100 Soru Testi (Etkileşimli)</title>
+<style>
+  body{font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; padding:20px; background:#f7f8fb; color:#111}
+  .container{max-width:900px;margin:0 auto;background:#fff;padding:20px;border-radius:10px;box-shadow:0 6px 22px rgba(12,15,30,0.08)}
+  h1{margin-top:0}
+  .q{border-bottom:1px solid #eef; padding:12px 0}
+  .opts{display:flex;flex-direction:column; gap:8px; margin-top:8px}
+  button.opt{padding:8px 10px;border-radius:6px;border:1px solid #d6dce8;background:#fff; text-align:left; cursor:pointer}
+  button.opt:hover{background:#f2f6ff}
+  .feedback{margin-top:8px;font-weight:600}
+  .correct{color:green}
+  .wrong{color:red}
+  .controls{display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap}
+  .small{font-size:0.9rem;color:#555}
+  .score{font-weight:700}
+  .nav{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .nav button{padding:6px 10px;border-radius:6px;border:1px solid #d6dce8;background:#fff;cursor:pointer}
+  footer{font-size:0.85rem;color:#666;margin-top:18px}
+  .correct-answer{margin-top:6px;font-size:0.95rem;color:#333}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Hematoloji - 100 Soru Testi</h1>
+  <p class="small">Her sorunun şıkkına tıkla, anında <span style="color:green">✅ Doğru</span> veya <span style="color:red">❌ Yanlış</span> geri bildirimi gör.</p>
+  <div id="quiz"></div>
+  <div class="controls">
+    <div class="nav" id="nav"></div>
+    <button id="prev">◀ Önceki</button>
+    <button id="next">Sonraki ▶</button>
+    <div class="score small">Doğru: <span id="correctCount">0</span> / 100</div>
+    <button id="showAllAnswers">Cevap Anahtarını Göster</button>
+    <button id="reset">Testi Sıfırla</button>
+  </div>
+  <footer>Dosya yerel olarak çalışır. İnternetsiz açabilirsiniz.</footer>
+</div>
+
+<script>
+const questions = [
+{"q":"1. Demir eksikliği anemisinde hangi parametre tipik olarak azalır?","opts":["Ferritin","TDPK","RDW","MCV"],"a":0},
+{"q":"2. Megaloblastik aneminin ana patofizyolojisi nedir?","opts":["Hem sentezi bozukluğu","DNA sentezi bozukluğu","Demir emilim bozukluğu","Membran defekti"],"a":1},
+{"q":"3. Pernisiyöz anemide hangi test sıklıkla pozitiftir?","opts":["Anti-intrinsik faktör antikoru","Haptoglobin","G6PD enzimi","Retikülosit oranı"],"a":0},
+{"q":"4. Hemoliz varlığında beklenen bulgulardan biri nedir?","opts":["Haptoglobin artışı","İndirekt bilirubin artışı","Ferritin artışı","MCV düşüşü"],"a":1},
+{"q":"5. Kronik hastalık anemisinde tipik MCV durumu nedir?","opts":["Mikrositik","Mikrositik veya normal","Megalositik","Mutlaka makrositik"],"a":1},
+{"q":"6. DİK (Disseminated Intravascular Coagulation) laboratuvarında tipik bulgu nedir?","opts":["PT ve aPTT normal","D-dimer artışı ve trombosit düşüşü","Fibrinojen artışı","Trombin zamanı kısalması"],"a":1},
+{"q":"7. Hemofili A hangi faktör eksikliğiyle ilişkilidir?","opts":["Faktör VIII","Faktör IX","Faktör VII","Faktör XIII"],"a":0},
+{"q":"8. Multipl myelomda sıklıkla görülen bulgulardan biri nedir?","opts":["Rulo formasyonu","Hipokalsemi","Düşük sedimantasyon","Yüksek albumin"],"a":0},
+{"q":"9. ALL (Akut Lenfoblastik Lösemi) en sık hangi yaş grubunda görülür?","opts":["Çocukluk çağı","Orta yaş","İleri yaş","Genç erişkin"],"a":0},
+{"q":"10. İTP (İmmün Trombositopenik Purpura) patogenezi nedir?","opts":["Trombosit üretimi kusuru","Trombositlere karşı otoantikorlara bağlı yıkım","Fibrinojen eksikliği","DIC ile ilişkili tüketim"],"a":1},
+{"q":"11. Retikülositoz genellikle neyi işaret eder?","opts":["Kemik iliği üretim artışı","Kemik iliği baskılanması","Demir emilim bozukluğu","Folat eksikliği"],"a":0},
+{"q":"12. Ferritin hangi durumu gösterir?","opts":["Depo demiri","Anlık serum demiri","Transferrin saturasyonu","Hemoliz seviyesi"],"a":0},
+{"q":"13. Hemolitik anemide haptoglobin değeri genellikle nasıl olur?","opts":["Artar","Azalır","Değişmez","Her zaman normaldir"],"a":1},
+{"q":"14. Talasemi taşıyıcılarında tipik kontrast nedir?","opts":["Yüksek MCV","Normal Hb elektroforezi","Mikrositer aneminin varlığı","Yüksek ferritin"],"a":2},
+{"q":"15. Akut promiyelositik lösemi (M3) ile ilişkilendirilen genetik değişiklik nedir?","opts":["t(15;17)","t(9;22)","t(8;21)","inv(16)"],"a":0},
+{"q":"16. Pernisiyöz anemide nörolojik bulguların nedeni hangi metabolitin artışıdır?","opts":["Metilmalonik asit (MMA)","Homosistein düşüklüğü","Ferritin artışı","Bilirubin artışı"],"a":0},
+{"q":"17. Serum ferritin normal veya yüksek fakat demir eksikliği olabileceğini düşündüren durum nedir?","opts":["Ağır inflamasyon","Pernisiyöz anemi","B12 takviyesi","Hemokromatozis"],"a":0},
+{"q":"18. Hemolizde idrarda hangi belirteç görülebilir?","opts":["Proteinüri","Hemoglobinüri veya hemosiderinüri","Glikozüri","Bence-Jones proteini"],"a":1},
+{"q":"19. Orak hücre hastalığında akut göğüs sendromu en önemli özelliklerden biri midir?","opts":["Evet","Hayır","Sadece çocuklarda","Sadece erişkinlerde"],"a":0},
+{"q":"20. G6PD eksikliğinde hangi bulgu tipik olarak görülür?","opts":["Megaloblastik değişiklikler","Akut hemoliz atakları (bazı ilaçlarla tetiklenir)","Kronik demir eksikliği","Trombositopeni"],"a":1},
+{"q":"21. Kemik iliği aplazisinde beklenen bulgu nedir?","opts":["Retikülositoz","Pansitopeni","Yüksek lökosit","Yüksek hemoglobin"],"a":1},
+{"q":"22. Serum transferrin saturasyonu (TSAT) genelde neyi gösterir?","opts":["Depo demirini","Anlık demir bağlama oranını","Ferritin depolarını","Hemoliz derecesini"],"a":1},
+{"q":"23. Sideroblastik anemi hangi bulguyla karakterizedir?","opts":["B12 eksikliği","Kemik iliğinde halka sideroblastların varlığı","Aplastik görünüm","DIC"],"a":1},
+{"q":"24. Trombosit adezyonunda ana rol oynayan protein hangisidir?","opts":["Hemoglobin","VWF (von Willebrand faktör)","Haptoglobin","Ferritin"],"a":1},
+{"q":"25. DIC gelişiminde hangi test genellikle artar?","opts":["Fibrinojen","D-dimer","Haptoglobin","Ferritin"],"a":1},
+{"q":"26. Hemofili B hangi faktör eksikliği ile karakterizedir?","opts":["Faktör IX","Faktör VIII","Faktör V","Faktör XIII"],"a":0},
+{"q":"27. Splenomegali en çok hangi durumda beklenir?","opts":["Her zaman demir eksikliğinde","Hemolitik anemilerde (ör. orak hücre)","Pernisiyöz anemide","Hemofili A'da"],"a":1},
+{"q":"28. Multiple myelomda hiperkalsemi nedeni nedir?","opts":["Kemik rezorpsiyonunun artması","Böbrek fonksiyonunun artması","Pernisiyöz anemi","Hemoliz"],"a":0},
+{"q":"29. ALL tanısında kemik iliğinde blast oranı hangi eşik değerin üzerindedir?","opts":["%20","%5","%1","%50"],"a":0},
+{"q":"30. İmmün hemolitik anemide Coombs testi neyi gösterir?","opts":["Periferik yaymayı","RBC membranına bağlı antikorları","Ferritin düzeyini","PTT süresini"],"a":1},
+{"q":"31. Ferritin <15-20 ng/mL genelde neyi gösterir?","opts":["Depo demirinin azaldığını","Hemoliz olduğunu","Kronik inflamasyon olduğunu","DIC olduğunu"],"a":0},
+{"q":"32. Folat eksikliğinin en sık kaynağı nedir?","opts":["Sadece kötü beslenme","Gebelik, alkol ve bazı ilaçlar dahil olmak üzere çeşitli nedenler","Hemokromatozis","Orak hücre anemisi"],"a":1},
+{"q":"33. Hemolitik anemide LDH nasıl değişir?","opts":["Azalır","Artar","Normal kalır","Sıfır olur"],"a":1},
+{"q":"34. Haptoglobin hangi durumda azalır?","opts":["Hemoliz","Demir eksikliği","Folat eksikliği","Talasemi taşıyıcılığı"],"a":0},
+{"q":"35. Trombosit sayısı <150.000 /mm3 hangi durumu tanımlar?","opts":["Trombositoz","Trombositopeıni (trombositopeni)","Normal","Polisitemi"],"a":1},
+{"q":"36. Von Willebrand hastalığında hangi test bozulabilir?","opts":["BT (bleeding time) uzayabilir","Hemoglobin artar","Ferritin düşer","Haptoglobin artar"],"a":0},
+{"q":"37. Akut lösemilerde kemik iliği blast oranı genelde nasıldır?","opts":["Genelde yüksek (%20 üzeri)","Her zaman düşük","Sadece normal","Sürekli değişmez"],"a":0},
+{"q":"38. Talasemi major tedavisinde hangisi sık gereklidir?","opts":["Düzenli kan transfüzyonu","Sadece folik asit","Sadece antibiyotik","Kan kaybı durdurma"],"a":0},
+{"q":"39. Pernisiyöz anemide mide bulgusu olarak hangi durum sık görülür?","opts":["Atrofik gastrit (paryetal hücre kaybı)","Artmış asit sekresyonu","Gastrik kanser garanti","Safra taşı"],"a":0},
+{"q":"40. Hematopoetik kök hücre mutasyonuyla komplement duyarlılığı artan hastalık hangisidir?","opts":["PNH (Paroksismal Nokturnal Hemoglobinüri)","ITP","Hemofili A","Talasemi"],"a":0},
+{"q":"41. DİC'de fibrinojen düzeyi genellikle nasıldır?","opts":["Artmıştır","Azalmıştır","Değişmez","Her zaman normaldir"],"a":1},
+{"q":"42. Trombosit fonksiyon bozukluğu hangisiyle ilişkili olabilir?","opts":["Aspirin kullanımı","B12 takviyesi","Ferritin yüksekliği","Retikülosit artışı"],"a":0},
+{"q":"43. Myelodisplastik sendromlarda hangi durum sıktır?","opts":["Hızlı lösemik dönüşüm riski","Her zaman yüksek Hb","AIDS ile bağlantı","G6PD eksikliği"],"a":0},
+{"q":"44. Akut promiyelositik lösemide (APL) hangi tedavi spesifiktir?","opts":["ATRA (all-trans retinoic acid)","Eritropoietin","Deferoksamin","Vitamin B12"],"a":0},
+{"q":"45. Hemoliz varlığında hangi idrar bulgusu görülebilir?","opts":["Hemoglobinüri","Bence-Jones proteinüri","Glukozüri","Proteinüri"],"a":0},
+{"q":"46. Ferritin akut faz reaktantıdır; bu ne anlama gelir?","opts":["İnflamasyon sırasında artabilir","İnflamasyon sırasında azalır","Hepatik fibrozu gösterir","Sadece demir depolarını gösterir"],"a":0},
+{"q":"47. Hemoliz hızlandığında hangi laboratuvar değeri sıklıkla artar?","opts":["Haptoglobin","LDH","Ferritin","Albumin"],"a":1},
+{"q":"48. Hemoglobinopatilerden hangisi HbS mutasyonu ile ilişkili?","opts":["Orak hücre hastalığı","Talasemi minor","Hemofili A","PNH"],"a":0},
+{"q":"49. İleri evre multiple myelomda böbrek hasarına neden olan başlıca mekanizma nedir?","opts":["Bence-Jones proteinlerinin tubulusa zarar vermesi","Hemoliz","DIC","Leukopeni"],"a":0},
+{"q":"50. Hemolizde indirekt bilirubin artışının nedeni nedir?","opts":["Artan RBC yıkımı sonucu açığa çıkan bilirubin","Karaciğer yetmezliği","Folat eksikliği","Demir eksikliği"],"a":0},
+{"q":"51. Talasemi trait (taşıyıcı) genelde hangi kan sayımı bulgusuna yol açar?","opts":["Hafif mikrositer anemi","Şiddetli makrositer anemi","Pansitopeni","Yüksek MCV"],"a":0},
+{"q":"52. Aplastik anemi tedavisinde hangi yaklaşım gerekebilir?","opts":["Kemik iliği transplantasyonu","Yalnızca demir takviyesi","Asla tedavi gerekmez","Sadece antibiyotikler"],"a":0},
+{"q":"53. Hemoglobin elektroforezünde HbA2 yükselmesi genelde hangi durumda görülür?","opts":["Beta talasemi taşıyıcılığında","Pernisiyöz anemide","Hemofili B'de","PNH'de"],"a":0},
+{"q":"54. Hemoliz ile ilişkili idrar renginde hangi değişiklik görülür?","opts":["Koyu çay-kahve renginde idrar (hemoglobinüri)","Açık sarı normal idrar","Yeşil idrar","Beyaz idrar"],"a":0},
+{"q":"55. DIC ayırıcı tanısında hangi test önemli değildir?","opts":["INR/PT","D-dimer","Serum kreatinin (yalnızca DIC tanısı için)","Fibrinojen"],"a":2},
+{"q":"56. Von Willebrand faktörü hangi hücrede sentezlenir?","opts":["Endotel hücreleri ve megakaryositler","Hepatositler","Lenfositler","Böbrek tubulus hücreleri"],"a":0},
+{"q":"57. İmmün trombositopenide ilk basamak tedavi genelde nedir?","opts":["Kortikosteroidler","Kemoterapi","Plazmaferez","Demir takviyesi"],"a":0},
+{"q":"58. Sideroblastik anemide hangi parametre tipik olarak artar?","opts":["Serum demiri","Fibrinojen","D-dimer","Haptoglobin"],"a":0},
+{"q":"59. Hematolojik malignitelerde Bence-Jones proteini hangi yerden tespit edilir?","opts":["İdrar","Serum","Dışkı","Tükürük"],"a":0},
+{"q":"60. Orak hücre hastalığında ağrılı krizlerin temel nedeni nedir?","opts":["Mikrovasküler oklüzyon","Folat eksikliği","İnflamasyon olmaması","DIC"],"a":0},
+{"q":"61. Megaloblastik anemide MCV genellikle nasıldır?","opts":[">100 fL (makrositik)","<80 fL (mikrositik)","Normal (80-100 fL)","Her zaman 90 fL"],"a":0},
+{"q":"62. Hematolojik bir rulo formasyonu hangi durumda sıklıkla görülür?","opts":["Multipl myelom","PNH","Hemofili","ITP"],"a":0},
+{"q":"63. Ferritin yüksekliği hangi durumu işaret edebilir?","opts":["Demir yüklenmesi veya inflamasyon","Her zaman demir eksikliği","B12 eksikliği","Talasemi"],"a":0},
+{"q":"64. Akut lösemi tanısında periferik yaymada ne aranır?","opts":["Blast hücreleri","Sadece nötrofil sayısı","Böbrek fonksiyonu","Retikülosit sayısı"],"a":0},
+{"q":"65. Hemoglobin seviyesinin 7-9 g/dL aralığı hangi şiddeti belirtir?","opts":["Orta şiddet anemi","Hafif anemi","Normal","Ağır anemi"],"a":0},
+{"q":"66. Talasemi major hastalarında hangi komplikasyon sık görülebilir?","opts":["Demir birikimi (hemokromatoz)","B12 eksikliği","PNH gelişimi","Hemofili"],"a":0},
+{"q":"67. Hemolitik anemide retikülosit sayısı genelde ne olur?","opts":["Artar","Azalır","Sabit kalır","Her zaman normaldir"],"a":0},
+{"q":"68. Hemoglobinin oksijen taşıma kapasitesini bozan kalıtımsal bir defekt hangi hastalıktır?","opts":["Orak hücre anemisi","Talasemi trait","Pernisiyöz anemi","ITP"],"a":0},
+{"q":"69. PNH'de hangi laboratuvar özelliği beklenir?","opts":["Hemoglobinüri ve ham haptoglobin düşüşü","Artmış ferritin","Yüksek fibrinojen","Azalmış D-dimer"],"a":0},
+{"q":"70. Myeloma bağlı böbrek hasarında en sık sorumlu olan protein hangisidir?","opts":["Serbest hafif zincirler (Bence-Jones)","Hemoglobin","Haptoglobin","Fibrinojen"],"a":0},
+{"q":"71. APL (M3) tipi lösemide görülen ciddi komplikasyon hangisidir?","opts":["DIC","PNH","Hemofili","Talasemi"],"a":0},
+{"q":"72. Hemolitik anemi ayırıcı tanısında hangi test yardımcıdır?","opts":["Direkt Coombs testi","Fibrinojen","D-dimer","Sedimantasyon"],"a":0},
+{"q":"73. Iron deficiency anemia'da pica nedir?","opts":["İştah dışı, toprak veya buz yeme isteği","Kanama","Ağrı krizi","Derin sarılık"],"a":0},
+{"q":"74. Eritrosit dağılım genişliği (RDW) en çok hangi durumda artar?","opts":["Demir eksikliği anemisinde","Talasemi trait'te","Pernisiyöz anemide","ITP'de"],"a":0},
+{"q":"75. Hemoglobin elektroforezünde HbS pozitifliği hangi hastalığı gösterir?","opts":["Orak hücre hastalığı","Talasemi minor","ITP","DIC"],"a":0},
+{"q":"76. Primer hemostazın bozulması genelde hangi bulguya yol açar?","opts":["Mukokütanöz kanamalar (epistaksis, diş eti kanaması)","Derin doku kanamaları","Kemik ağrısı","PNH"],"a":0},
+{"q":"77. Trombotik trombositopenik purpura (TTP) klasik pentadı içinde olmayan hangisidir?","opts":["Hiperkalsemi","Ateş, nörolojik belirtiler, trombositopeni, MAHA, renal bozukluk","Mikroanjiyopatik hemolitik anemi","Trombositopeni"],"a":0},
+{"q":"78. Hemofili taşıyıcı bir kadın genellikle hangi semptomları gösterir?","opts":["Hafif kanama eğilimi veya normal olabilir","Her zaman ağır kanama","Her zaman normal","Trombositopeni gelişir"],"a":0},
+{"q":"79. Multiple myelom tanısında kullanılan 'CRAB' kriterlerinden 'R' neyi ifade eder?","opts":["Renal yetmezlik","Retikülosit artışı","RBC sayısı","Rulo formasyonu"],"a":0},
+{"q":"80. Aksesuar olarak kemik iliği biyopsisinde megaloblastik anemide ne görülür?","opts":["Hipersellüler kemik iliği ve megaloblastik değişiklikler","Aplastik görüntü","Mikroablastlar","Fibrozis"],"a":0},
+{"q":"81. Hemolitik anemide indirekt bilirubin neden artar?","opts":["Artan hem yıkımı","Azalan hem yıkımı","Artan ferritin","Artan fibrinojen"],"a":0},
+{"q":"82. Retikülosit yüzde artışı neyi gösterir?","opts":["Kemik iliğinin yeterli yanıt verip RBC üretimini artırdığını","Kemik iliğinin baskılandığını","Folat eksikliğini","PNH'yi"],"a":0},
+{"q":"83. Von Willebrand hastalığında hangi faktör seviyesi etkilenir?","opts":["vWF seviyesi ve sekonder olarak F8 seviyesi","Fibrinojen","Haptoglobin","Albumin"],"a":0},
+{"q":"84. Hematolojik kanamaya yaklaşımda ilk basamak hangi test grubunu içerir?","opts":["Hemogram, PT, aPTT, fibrinojen","Bence-Jones testi","Plexiglass testi","ECHO"],"a":0},
+{"q":"85. Aile öyküsü, eklem içi kanamalar tipikse hangi hastalık düşünülmelidir?","opts":["Hemofili","Pernisiyöz anemi","ITP","Talasemi"],"a":0},
+{"q":"86. Talasemi majorun temel patofizyolojisi nedir?","opts":["Beta globin sentezinin azalması","B12 eksikliği","DIC","Hemoliz yoktur"],"a":0},
+{"q":"87. AML (Akut myeloblastik lösemi) tanısında hangi belirteç myeloid ayrışmayı gösterir?","opts":["Myeloperoksidaz (MPO) pozitifliği","TdT pozitifliği","PAS pozitifliği","Bence-Jones proteini"],"a":0},
+{"q":"88. İleri derecede demir eksikliği anemisinde tırnaklarda hangi değişiklik olabilir?","opts":["Koilonychia (kaşık tırnak)","Onikoliz","Tırnak rengi koyulaşır","Tırnak büyümez"],"a":0},
+{"q":"89. Hemolizde haptoglobin neden azalır?","opts":["Serbest hemoglobinle bağlanıp kompleks oluşturduğu için","Haptoglobin sentezi bozulur","İdrarla atıldığı için","Böbrek tarafından parçalanır"],"a":0},
+{"q":"90. All-trans retinoik asit (ATRA) hangi lösemi tipinde kullanılır?","opts":["Akut promiyelositik lösemi (APL, M3)","ALL","PNH","Talasemi"],"a":0},
+{"q":"91. Multiple myelom tanısında kemik lezyonları hangi görüntüleme ile sıklıkla gösterilir?","opts":["BT veya PET-BT veya skelet grafileri (osteolitik lezyonlar)","Ekokardiyografi","USG abdomen","Doppler USG"],"a":0},
+{"q":"92. Hemolitik anemide periferik yaymada hangi hücresel bulgu görülebilir?","opts":["Polikromazi ve sferositler","Megaloblastik değişiklikler","Düşük retikülosit","Rulo formasyonu"],"a":0},
+{"q":"93. EDTA'ya bağlı psödotrombositopeni ne demektir?","opts":["Laboratuvar artefaktı ile trombosit sayısının yanlış düşük görünmesi","Gerçek trombositopeni","Hemofili formu","PNH belirtisi"],"a":0},
+{"q":"94. Hemoglobin değeri 7 g/dL altı tipik olarak hangi kategoriye girer?","opts":["Ağır anemi","Hafif anemi","Normal","Orta anemi"],"a":0},
+{"q":"95. Aşırı alkol tüketimi hangi anemi tipine neden olabilir?","opts":["Megaloblastik veya makrositik anemi (folat antagonizması/direkt etkiler)","Sadece demir eksikliği","Hemofili","PNH"],"a":0},
+{"q":"96. Hemolitik anemide haptoglobin neden ölçülür?","opts":["Hemoliz göstergesi olarak düşüşü izlemek için","Demir depolarını ölçmek için","B12 seviyesini tahmin etmek için","Fibrinojen düzeyini ölçmek için"],"a":0},
+{"q":"97. Trombotik mikroanjiyopati (TMA) örneklerinden biri değildir?","opts":["Hemofili A","TTP","HUS","MAHA"],"a":0},
+{"q":"98. Akut lösemi semptomlarından olmayan hangisidir?","opts":["Yüksek hematokrit (çoğunlukla düşük veya normal olur)","Ateş","Eklem ağrıları","Anemi bulguları"],"a":0},
+{"q":"99. Myeloma hastasında 'CRAB' kriterlerinden 'A' harfi neyi temsil eder?","opts":["Anemi","Ateş","Artmış fibrinojen","Ağrı"],"a":0},
+{"q":"100. Hematolojik değerlendirmede RDW artışı en çok hangi iki durum arasında ayrım yapmaya yardımcı olur?","opts":["Demir eksikliği anemisi ve talasemi arasında (özellikle RDW yüksek -> demir eksikliği)","PNH ve hemofili","DIC ve TTP","ITP ve HUS"],"a":0}
+];
+
+let current = 0;
+let correctCount = 0;
+const userAnswers = Array(questions.length).fill(null);
+const quizDiv = document.getElementById('quiz');
+const navDiv = document.getElementById('nav');
+const correctSpan = document.getElementById('correctCount');
+
+function renderQuestion(idx){
+  const item = questions[idx];
+  quizDiv.innerHTML = '';
+  const qDiv = document.createElement('div');
+  qDiv.className = 'q';
+  const qtitle = document.createElement('div');
+  qtitle.innerHTML = `<strong> ${idx+1}. </strong> ${item.q}`;
+  qDiv.appendChild(qtitle);
+  const opts = document.createElement('div');
+  opts.className = 'opts';
+  item.opts.forEach((optText,optIdx)=>{
+    const btn = document.createElement('button');
+    btn.className = 'opt';
+    btn.innerText = String.fromCharCode(65+optIdx) + '. ' + optText;
+    btn.onclick = ()=> handleAnswer(idx,optIdx,btn);
+    // disable if already answered
+    if(userAnswers[idx] !== null){
+      btn.disabled = true;
+      if(optIdx === item.a){
+        btn.style.borderColor = '#bde5bd';
+      }
+    }
+    opts.appendChild(btn);
+  });
+  qDiv.appendChild(opts);
+  const fb = document.createElement('div');
+  fb.className = 'feedback';
+  fb.id = 'fb';
+  if(userAnswers[idx] !== null){
+    const ua = userAnswers[idx];
+    if(ua === item.a){
+      fb.innerHTML = `<span class="correct">✅ Doğru</span>`;
+    } else {
+      fb.innerHTML = `<span class="wrong">❌ Yanlış</span> <div class="correct-answer">Doğru cevap: ${String.fromCharCode(65+item.a)}. ${item.opts[item.a]}</div>`;
+    }
+  }
+  qDiv.appendChild(fb);
+  quizDiv.appendChild(qDiv);
+}
+
+function handleAnswer(qIdx,optIdx,btn){
+  if(userAnswers[qIdx] !== null) return; // already answered
+  userAnswers[qIdx] = optIdx;
+  const item = questions[qIdx];
+  const fb = document.getElementById('fb');
+  if(optIdx === item.a){
+    fb.innerHTML = `<span class="correct">✅ Doğru</span>`;
+    correctCount++;
+    correctSpan.innerText = correctCount;
+  } else {
+    fb.innerHTML = `<span class="wrong">❌ Yanlış</span> <div class="correct-answer">Doğru cevap: ${String.fromCharCode(65+item.a)}. ${item.opts[item.a]}</div>`;
+  }
+  // disable all option buttons for this question and highlight correct
+  const buttons = document.querySelectorAll('.opts button');
+  buttons.forEach((b,i)=>{
+    b.disabled = true;
+    if(i === item.a) b.style.borderColor = '#bde5bd';
+  });
+}
+
+document.getElementById('prev').onclick = ()=>{ if(current>0){ current--; renderQuestion(current); updateNavHighlight(); }};
+document.getElementById('next').onclick = ()=>{ if(current<questions.length-1){ current++; renderQuestion(current); updateNavHighlight(); }};
+
+function buildNav(){
+  questions.forEach((q,i)=>{
+    const b = document.createElement('button');
+    b.innerText = i+1;
+    b.onclick = ()=>{ current = i; renderQuestion(i); updateNavHighlight(); };
+    navDiv.appendChild(b);
+  });
+}
+
+function updateNavHighlight(){
+  Array.from(navDiv.children).forEach((b,idx)=>{
+    b.style.background = (idx===current)?'#e8f0ff':'#fff';
+    b.style.borderColor = userAnswers[idx]===null? '#d6dce8':'#bde5bd';
+  });
+}
+
+document.getElementById('showAllAnswers').onclick = ()=>{
+  // show all answers below quiz
+  const allDiv = document.getElementById('allAnswers');
+  if(allDiv){
+    allDiv.remove();
+    return;
+  }
+  const div = document.createElement('div');
+  div.id = 'allAnswers';
+  div.style.marginTop = '18px';
+  div.innerHTML = '<h3>Cevap Anahtarı</h3>';
+  const ol = document.createElement('ol');
+  questions.forEach((q,i)=>{
+    const li = document.createElement('li');
+    li.innerHTML = `Q${i+1}: ${String.fromCharCode(65+q.a)}. ${q.opts[q.a]}`;
+    ol.appendChild(li);
+  });
+  div.appendChild(ol);
+  quizDiv.parentNode.appendChild(div);
+};
+
+document.getElementById('reset').onclick = ()=>{
+  if(!confirm('Testi sıfırlamak istiyor musunuz? Tüm cevaplar silinecek.')) return;
+  for(let i=0;i<userAnswers.length;i++) userAnswers[i]=null;
+  correctCount=0;
+  correctSpan.innerText = correctCount;
+  renderQuestion(0);
+  updateNavHighlight();
+};
+
+// init
+buildNav();
+renderQuestion(0);
+updateNavHighlight();
+</script>
+</body>
+</html>
